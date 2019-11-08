@@ -18,7 +18,7 @@ Public Class FrmtekLIQ
         Me.stDocNum = stDocNum
     End Sub
 
-    'Private Property stRuta As String
+    'Private Property stRuta As String 
 
     '//----- ABRE LA FORMA DENTRO DE LA APLICACION
     Public Function openForm(ByVal psDirectory As String)
