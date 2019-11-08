@@ -20,7 +20,7 @@ Public Class FrmtekLIQ
 
     'Private Property stRuta As String 
 
-    '//----- ABRE LA FORMA DENTRO DE LA APLICACION
+    '//----- ABRE LA FORMA DENTRO DE LA APLICACION 
     Public Function openForm(ByVal psDirectory As String)
         Dim stQueryH As String
         Dim oRecSetH As SAPbobsCOM.Recordset
