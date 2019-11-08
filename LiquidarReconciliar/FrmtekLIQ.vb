@@ -22,7 +22,6 @@ Public Class FrmtekLIQ
 
     '//----- ABRE LA FORMA DENTRO DE LA APLICACION 
     Public Function openForm(ByVal psDirectory As String)
-        Dim stQueryH As String
         Dim oRecSetH As SAPbobsCOM.Recordset
         'Dim Monto As Integer
 
@@ -40,29 +39,9 @@ Public Class FrmtekLIQ
             '--- Referencia de Forma
             setForm(csFormUID)
 
-            cargarComboChofi()
-
-            AgregarLineas()
-
             '---- refresca forma
             coForm.Refresh()
             coForm.Visible = True
-
-            coForm = cSBOApplication.Forms.Item("tekDelivery")
-            coForm.DataSources.UserDataSources.Item("dsUser").Value = cSBOCompany.UserName
-            coForm.DataSources.UserDataSources.Item("dsDate").Value = Now.Date
-            coForm.DataSources.UserDataSources.Item("dsTruck").Value = ""
-
-            stQueryH = "Select count(""Code"")+1 as ""DocEntry"" from ""@EP_EN0"""
-            oRecSetH.DoQuery(stQueryH)
-
-            coForm.DataSources.UserDataSources.Item("dsDocN").Value = oRecSetH.Fields.Item("DocEntry").Value
-
-            coForm.Items.Item("2").Enabled = False
-            coForm.Items.Item("4").Enabled = False
-            coForm.Items.Item("5").Enabled = False
-
-            Return Monto
 
         Catch ex As Exception
             If (ex.Message <> "") Then
@@ -120,32 +99,23 @@ Public Class FrmtekLIQ
         Dim loDS As SAPbouiCOM.UserDataSource
         Dim oDataTable As SAPbouiCOM.DataTable
         Dim oGrid As SAPbouiCOM.Grid
-        Dim oCombo As SAPbouiCOM.ComboBox
 
         Try
             bindUserDataSources = 0
 
-            loDS = coForm.DataSources.UserDataSources.Add("dsDriver", SAPbouiCOM.BoDataType.dt_SHORT_TEXT) 'Creo el datasources
-            oCombo = coForm.Items.Item("1").Specific  'identifico mi combobox
-            oCombo.DataBind.SetBound(True, "", "dsDriver")   ' uno mi userdatasources a mi combobox
+            loDS = coForm.DataSources.UserDataSources.Add("DateFrom", SAPbouiCOM.BoDataType.dt_DATE) 'Creo el datasources
+            loText = coForm.Items.Item("1").Specific  'identifico mi caja de fecha
+            loText.DataBind.SetBound(True, "", "DateFrom")   ' uno mi userdatasources a mi caja de fecha
 
-            loDS = coForm.DataSources.UserDataSources.Add("dsUser", SAPbouiCOM.BoDataType.dt_SHORT_TEXT) 'Creo el datasources
-            loText = coForm.Items.Item("2").Specific  'identifico mi caja de texto
-            loText.DataBind.SetBound(True, "", "dsUser")   ' uno mi userdatasources a mi caja de texto
+            loDS = coForm.DataSources.UserDataSources.Add("DateTo", SAPbouiCOM.BoDataType.dt_DATE) 'Creo el datasources
+            loText = coForm.Items.Item("2").Specific  'identifico mi caja de fecha
+            loText.DataBind.SetBound(True, "", "DateTo")   ' uno mi userdatasources a mi caja de fecha
 
-            loDS = coForm.DataSources.UserDataSources.Add("dsTruck", SAPbouiCOM.BoDataType.dt_SHORT_TEXT) 'Creo el datasources
-            loText = coForm.Items.Item("3").Specific  'identifico mi caja de texto
-            loText.DataBind.SetBound(True, "", "dsTruck")   ' uno mi userdatasources a mi caja de texto
+            loDS = coForm.DataSources.UserDataSources.Add("dsAmount", SAPbouiCOM.BoDataType.dt_SHORT_TEXT) 'Creo el datasources
+            loText = coForm.Items.Item("9").Specific  'identifico mi caja de texto
+            loText.DataBind.SetBound(True, "", "dsAmount")   ' uno mi userdatasources a mi caja de texto
 
-            loDS = coForm.DataSources.UserDataSources.Add("dsDocN", SAPbouiCOM.BoDataType.dt_SHORT_TEXT) 'Creo el datasources
-            loText = coForm.Items.Item("4").Specific  'identifico mi caja de texto
-            loText.DataBind.SetBound(True, "", "dsDocN")   ' uno mi userdatasources a mi caja de texto
-
-            loDS = coForm.DataSources.UserDataSources.Add("dsDate", SAPbouiCOM.BoDataType.dt_SHORT_TEXT) 'Creo el datasources
-            loText = coForm.Items.Item("5").Specific  'identifico mi caja de texto
-            loText.DataBind.SetBound(True, "", "dsDate")   ' uno mi userdatasources a mi caja de texto
-
-            oGrid = coForm.Items.Item("11").Specific
+            oGrid = coForm.Items.Item("3").Specific
             oDataTable = coForm.DataSources.DataTables.Add("Invoices")
             oGrid.DataTable = oDataTable
 
@@ -161,87 +131,47 @@ Public Class FrmtekLIQ
     End Function
 
 
-    '---- Carga de Porcentajes
-    Public Function cargarComboChofi()
-
-        Dim oCombo As SAPbouiCOM.ComboBox
-        Dim oRecSet As SAPbobsCOM.Recordset
-
-        Try
-            cargarComboChofi = 0
-            '--- referencia de combo 
-            oCombo = coForm.Items.Item("1").Specific
-            coForm.Freeze(True)
-            '---- SI YA SE TIENEN VALORES, SE ELIMMINAN DEL COMBO
-            If oCombo.ValidValues.Count > 0 Then
-                Do
-                    oCombo.ValidValues.Remove(0, SAPbouiCOM.BoSearchKey.psk_Index)
-                Loop While oCombo.ValidValues.Count > 0
-            End If
-            '--- realizar consulta
-            oRecSet = cSBOCompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset)
-            oRecSet.DoQuery(" Select null as ""Name"",null as ""Code"" from dummy union all Select ""Name"",""Code"" from ""@EP_EN2""")
-            '---- cargamos resultado
-            oRecSet.MoveFirst()
-            Do While oRecSet.EoF = False
-                oCombo.ValidValues.Add(oRecSet.Fields.Item(0).Value, oRecSet.Fields.Item(1).Value)
-                oRecSet.MoveNext()
-            Loop
-            oCombo.Select(0, SAPbouiCOM.BoSearchKey.psk_Index)
-            coForm.Freeze(False)
-
-
-        Catch ex As Exception
-            coForm.Freeze(False)
-            MsgBox("FrmtekDel. Fallo la carga previa del comboBox cargarComboChofi: " & ex.Message)
-        Finally
-            oCombo = Nothing
-            oRecSet = Nothing
-        End Try
-    End Function
-
-
     '----- carga los procesos de carga
     Public Function AgregarLineas()
         Dim oGrid As SAPbouiCOM.Grid
         Dim stQuery As String = ""
         Dim oRecSet As SAPbobsCOM.Recordset
-        Dim oCombo As SAPbouiCOM.ComboBoxColumn
+        Dim Fdate, Tdate, Amount, Fecha1, Fecha2 As String
 
         Try
+            coForm = cSBOApplication.Forms.Item("tekReconciliation")
 
-            oGrid = coForm.Items.Item("11").Specific
+            Fdate = coForm.DataSources.UserDataSources.Item("DateFrom").Value
+            Tdate = coForm.DataSources.UserDataSources.Item("DateTo").Value
+            Amount = coForm.DataSources.UserDataSources.Item("dsAmount").Value
+
+            Fecha1 = ArreglarFechas(Fdate)
+            Fecha2 = ArreglarFechas(Tdate)
+
+            oGrid = coForm.Items.Item("3").Specific
             oGrid.DataTable.Clear()
 
             oRecSet = cSBOCompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset)
-            stQuery = "Select 1 as ""#"",'                         ' as ""Factura"", '          ' as ""Fecha Factura"", '          ' as ""Fecha Escaneo"", '          ' as ""Estatus"" from dummy"
+            stQuery = "SELECT T2.""LicTradNum"" as ""RFC"",T2.""CardName"" as ""Cliente"",(T1.""BalDueCred""-IFNULL(T4.""BalDueDeb"",0)) as ""Saldo_a_Favor"",T3.""PrjName"" as ""Sucursal"",T0.""Project"" as ""Cod_Sucursal"",T0.""TransId"" as ""Asiento"", '' as ""Liquidar""
+                       FROM OJDT T0
+                       INNER JOIN JDT1 T1 ON T0.""TransId"" = T1.""TransId""
+                       INNER JOIN OCRD T2 on T2.""CardCode"" = T1.""ShortName""
+                       INNER JOIN OPRJ T3 On T0.""Project"" = T3.""PrjCode""
+                       LEFT JOIN (Select A.""TransId"",B.""BalDueDeb"",B.""ShortName"",A.""Ref1""  from OJDT A
+                       Inner Join JDT1 B on A.""TransId"" = B.""TransId""
+                       where A.""Memo"" Like ('%Asiento de corrección saldo a favor del cliente%')
+                       and B.""BalDueDeb"" > 0) T4 On T1.""TransId"" = T4.""Ref1""
+                       Where (T1.""BalDueCred""-IFNULL(T4.""BalDueDeb"",0))>0 and (T1.""BalDueCred""-IFNULL(T4.""BalDueDeb"",0))<=" & Amount & " and T1.""BalDueCred"" > 0 and T0.""RefDate"" Between '" & Fecha1 & "' and '" & Fecha2 & "'"
             oGrid.DataTable.ExecuteQuery(stQuery)
 
-            oGrid.Columns.Item(4).Type = SAPbouiCOM.BoGridColumnType.gct_ComboBox
-            oCombo = oGrid.Columns.Item(4)
+            oGrid.Columns.Item(6).Type = SAPbouiCOM.BoGridColumnType.gct_CheckBox
 
-            oCombo.ValidValues.Add("", "")
-            oCombo.ValidValues.Add("Escaneado", "Escaneado")
-            oCombo.ValidValues.Add("Retenido", "Retenido")
-            oCombo.ValidValues.Add("Cancelado", "Cancelado")
-
-            oGrid.Columns.Item(1).Editable = True
-            oGrid.Columns.Item(2).Editable = True
-            oGrid.Columns.Item(3).Editable = True
-
-            oGrid.DataTable.Rows.Add(19)
-
-            For i = 1 To 19
-                oGrid.DataTable.SetValue("#", i, i + 1)
-            Next
-
-            ' Set columns size
-            oGrid.Columns.Item(0).Width = 30
-            oGrid.Columns.Item(1).Width = 100
-            oGrid.Columns.Item(2).Width = 100
-            oGrid.Columns.Item(3).Width = 100
-            oGrid.Columns.Item(4).Width = 100
             oGrid.Columns.Item(0).Editable = False
+            oGrid.Columns.Item(1).Editable = False
+            oGrid.Columns.Item(2).Editable = False
+            oGrid.Columns.Item(3).Editable = False
+            oGrid.Columns.Item(4).Editable = False
+            oGrid.Columns.Item(5).Editable = False
 
             Return 0
 
@@ -256,5 +186,32 @@ Public Class FrmtekLIQ
         End Try
 
     End Function
+
+
+    Public Function ArreglarFechas(ByVal stFecha As String) As String
+
+        Try
+            Dim oRecSetF1 As SAPbobsCOM.Recordset
+            Dim stQueryF1 As String
+            Dim Fecha As String
+
+            oRecSetF1 = cSBOCompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset)
+
+            stQueryF1 = "select substring('" & stFecha & "',7,4)as ""año1"",substring('" & stFecha & "',4,2) as ""mes1"",substring('" & stFecha & "',1,2)as ""dia1"" from dummy;"
+            oRecSetF1.DoQuery(stQueryF1)
+
+            If oRecSetF1.RecordCount > 0 Then
+                oRecSetF1.MoveFirst()
+                Fecha = oRecSetF1.Fields.Item("año1").Value & "-" & oRecSetF1.Fields.Item("mes1").Value & "-" & oRecSetF1.Fields.Item("dia1").Value
+            End If
+
+            'MsgBox(Fecha1)
+            Return Fecha
+
+        Catch ex As Exception
+            cSBOApplication.MessageBox("ArreglasFecha1. " & ex.Message)
+        End Try
+    End Function
+
 
 End Class

@@ -126,11 +126,11 @@ Friend Class CatchingEvents
 
             lofilters = New SAPbouiCOM.EventFilters
             lofilter = lofilters.Add(SAPbouiCOM.BoEventTypes.et_ITEM_PRESSED)
-            lofilter.AddEx("tekDelivery") '////// FORMA UDO DE ENTREGAS
+            lofilter.AddEx("tekReconciliation") '////// FORMA UDO DE ENTREGAS
             lofilter = lofilters.Add(SAPbouiCOM.BoEventTypes.et_KEY_DOWN)
-            lofilter.AddEx("tekDelivery") '////// FORMA UDO DE ENTREGAS
+            lofilter.AddEx("tekReconciliation") '////// FORMA UDO DE ENTREGAS
             lofilter = lofilters.Add(SAPbouiCOM.BoEventTypes.et_COMBO_SELECT)
-            lofilter.AddEx("tekDelivery") '////// FORMA UDO DE ENTREGAS
+            lofilter.AddEx("tekReconciliation") '////// FORMA UDO DE ENTREGAS
             lofilter = lofilters.Add(SAPbouiCOM.BoEventTypes.et_MENU_CLICK)
 
             SBOApplication.SetFilter(lofilters)
@@ -160,17 +160,17 @@ Friend Class CatchingEvents
     '// CONTROLADOR DE EVENTOS MENU
     '//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Private Sub SBOApplication_MenuEvent(ByRef pVal As SAPbouiCOM.MenuEvent, ByRef BubbleEvent As Boolean) Handles SBOApplication.MenuEvent
-        Dim otekDel As FrmtekDel
+        Dim otekLiq As FrmtekLIQ
 
         Try
             '//ANTES DE PROCESAR SBO
             If pVal.BeforeAction = False Then
                 Select Case pVal.MenuUID
                     '//////////////////////////////////SubMenu de Crear traslado inventario////////////////////////
-                    Case "DEL11"
+                    Case "REC11"
 
-                        otekDel = New FrmtekDel
-                        otekDel.openForm(csDirectory)
+                        otekLiq = New FrmtekLIQ
+                        otekLiq.openForm(csDirectory)
 
                 End Select
             End If
@@ -192,52 +192,83 @@ Friend Class CatchingEvents
     End Sub
 
 
-    'Private Sub SBOApplication_ItemEvent(ByVal FormUID As String, ByRef pVal As SAPbouiCOM.ItemEvent, ByRef BubbleEvent As Boolean) Handles SBOApplication.ItemEvent
-    '    Try
-    '        If pVal.Before_Action = False And pVal.FormTypeEx <> "" Then
+    Private Sub SBOApplication_ItemEvent(ByVal FormUID As String, ByRef pVal As SAPbouiCOM.ItemEvent, ByRef BubbleEvent As Boolean) Handles SBOApplication.ItemEvent
+        Try
+            If pVal.Before_Action = False And pVal.FormTypeEx <> "" Then
 
-    '            Select Case pVal.FormTypeEx
-    '                '////////////////FORMA PARA ACTIVAR LICENCIA
-    '                Case "tekDelivery"
-    '                    FrmEntregaSBOControllerAfter(FormUID, pVal)
-    '            End Select
-    '        End If
+                Select Case pVal.FormTypeEx
+                    '////////////////FORMA PARA ACTIVAR LICENCIA
+                    Case "tekReconciliation"
+                        FrmLiquidarSBO(FormUID, pVal)
+                End Select
+            End If
 
-    '    Catch ex As Exception
-    '        SBOApplication.MessageBox("SBOApplication_ItemEvent. ItemEvent " & ex.Message)
-    '    Finally
-    '    End Try
-    'End Sub
+        Catch ex As Exception
+            SBOApplication.MessageBox("SBOApplication_ItemEvent. ItemEvent " & ex.Message)
+        Finally
+        End Try
+    End Sub
 
-    Public Function addDelivery(ByVal FormUID As String, ByVal csDirectory As String)
+    Private Sub FrmLiquidarSBO(ByVal FormUID As String, ByVal pVal As SAPbouiCOM.ItemEvent)
 
-        Dim oReconService As SAPbobsCOM.InternalReconciliationsService = SBOCompany.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.InternalReconciliationsService)
-        Dim openTrans As SAPbobsCOM.InternalReconciliationOpenTrans = oReconService.GetDataInterface(SAPbobsCOM.InternalReconciliationsServiceDataInterfaces.irsInternalReconciliationOpenTrans)
-        Dim reconParams As SAPbobsCOM.InternalReconciliationParams = oReconService.GetDataInterface(SAPbobsCOM.InternalReconciliationsServiceDataInterfaces.irsInternalReconciliationParams)
+        Dim otekLiq As FrmtekLIQ
+        Dim oRecSetH As SAPbobsCOM.Recordset
 
-        For i = 0 To 10 'gridRecon.DataTable.Rows.Count - 1
+        Try
+
+            oRecSetH = SBOCompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset)
+
+            Select Case pVal.EventType
+
+                Case SAPbouiCOM.BoEventTypes.et_ITEM_PRESSED
+
+                    Select Case pVal.ItemUID
+
+                        Case "4"
+
+                            otekLiq = New FrmtekLIQ
+                            otekLiq.AgregarLineas()
+
+                    End Select
+
+            End Select
+
+        Catch ex As Exception
+            SBOApplication.MessageBox("FrmEntregaSBOControllerAfter. Error en forma de Panel General. " & ex.Message)
+        Finally
+
+        End Try
+    End Sub
+
+    'Public Function addDelivery(ByVal FormUID As String, ByVal csDirectory As String)
+
+    '    Dim oReconService As SAPbobsCOM.InternalReconciliationsService = SBOCompany.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.InternalReconciliationsService)
+    '    Dim openTrans As SAPbobsCOM.InternalReconciliationOpenTrans = oReconService.GetDataInterface(SAPbobsCOM.InternalReconciliationsServiceDataInterfaces.irsInternalReconciliationOpenTrans)
+    '    Dim reconParams As SAPbobsCOM.InternalReconciliationParams = oReconService.GetDataInterface(SAPbobsCOM.InternalReconciliationsServiceDataInterfaces.irsInternalReconciliationParams)
+
+    '    For i = 0 To 10 'gridRecon.DataTable.Rows.Count - 1
 
 
-            If gridRecon.DataTable.GetValue("Select", gridRecon.GetDataTableRowIndex(i)) = "Y" Then
+    '        If gridRecon.DataTable.GetValue("Select", gridRecon.GetDataTableRowIndex(i)) = "Y" Then
 
-                SBOApplication.SetStatusBarMessage("Reconcilling Please wait...", SAPbouiCOM.BoMessageTime.bmt_Short, False) With openTrans 'For Incoming Payment '1st Line 
+    '            SBOApplication.SetStatusBarMessage("Reconcilling Please wait...", SAPbouiCOM.BoMessageTime.bmt_Short, False) With openTrans 'For Incoming Payment '1st Line 
 
-            If gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "RC" Then
-                    .InternalReconciliationOpenTransRows.Add()
-                    .InternalReconciliationOpenTransRows.Item(x).Selected = SAPbobsCOM.BoYesNoEnum.tYES
-                    .InternalReconciliationOpenTransRows.Item(x).TransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) ' Journal Entry ID: TransId in OJDT 
-                    .InternalReconciliationOpenTransRows.Item(x).TransRowId = 1 ' Journal Entry Line Number: Line_ID in JDT1 
-                    oIncomPayment = Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i))) ' MsgBox(oIncomPayment) 'oTotal = oARPayment - oIncomPayment 
-                    .InternalReconciliationOpenTransRows.Item(x).ReconcileAmount = oARPayment 'gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i)) 
-                    ' This should always be positive value. But one line should be on Credit, one line is Debit. 
-                    oTransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) ' 
-                ElseIf gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "JE" Then
-                Else openTrans.CardOrAccount = SAPbobsCOM.CardOrAccountEnum.coaCard .InternalReconciliationOpenTransRows.Add() .InternalReconciliationOpenTransRows.Item(x).Selected = SAPbobsCOM.BoYesNoEnum.tYES .InternalReconciliationOpenTransRows.Item(x).TransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) .InternalReconciliationOpenTransRows.Item(x).TransRowId = 0 ' Journal Entry Line Number: Line_ID in JDT1 .InternalReconciliationOpenTransRows.Item(x).ReconcileAmount = Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i))) ' This should always be positive value. But one line should be on Credit, one line is Debit. Console.WriteLine(Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i)))) If gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "JE" Then oJeTranID = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) olistPostedJE.Add(oJeTranID) End If End If If Not gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "RC" Then oARPayment += Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", i)) End If x = x + 1 End With End If 
+    '        If gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "RC" Then
+    '                .InternalReconciliationOpenTransRows.Add()
+    '                .InternalReconciliationOpenTransRows.Item(x).Selected = SAPbobsCOM.BoYesNoEnum.tYES
+    '                .InternalReconciliationOpenTransRows.Item(x).TransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) ' Journal Entry ID: TransId in OJDT 
+    '                .InternalReconciliationOpenTransRows.Item(x).TransRowId = 1 ' Journal Entry Line Number: Line_ID in JDT1 
+    '                oIncomPayment = Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i))) ' MsgBox(oIncomPayment) 'oTotal = oARPayment - oIncomPayment 
+    '                .InternalReconciliationOpenTransRows.Item(x).ReconcileAmount = oARPayment 'gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i)) 
+    '                ' This should always be positive value. But one line should be on Credit, one line is Debit. 
+    '                oTransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) ' 
+    '            ElseIf gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "JE" Then
+    '            Else openTrans.CardOrAccount = SAPbobsCOM.CardOrAccountEnum.coaCard .InternalReconciliationOpenTransRows.Add() .InternalReconciliationOpenTransRows.Item(x).Selected = SAPbobsCOM.BoYesNoEnum.tYES .InternalReconciliationOpenTransRows.Item(x).TransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) .InternalReconciliationOpenTransRows.Item(x).TransRowId = 0 ' Journal Entry Line Number: Line_ID in JDT1 .InternalReconciliationOpenTransRows.Item(x).ReconcileAmount = Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i))) ' This should always be positive value. But one line should be on Credit, one line is Debit. Console.WriteLine(Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i)))) If gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "JE" Then oJeTranID = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) olistPostedJE.Add(oJeTranID) End If End If If Not gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "RC" Then oARPayment += Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", i)) End If x = x + 1 End With End If 
 
-        Next
+    '    Next
 
-        Try reconParams = oReconService.Add(openTrans) Catch ex As Exception SAP_APP.SetMessage(ex.ToString, SAPbouiCOM.BoStatusBarMessageType.smt_Error) oWriteText(Now & " - " & "[Err] - " & ex.ToString, True) oCompany.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack) Return False End Try Try oCompany.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit) Catch ex As Exception End Try
+    '    Try reconParams = oReconService.Add(openTrans) Catch ex As Exception SAP_APP.SetMessage(ex.ToString, SAPbouiCOM.BoStatusBarMessageType.smt_Error) oWriteText(Now & " - " & "[Err] - " & ex.ToString, True) oCompany.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack) Return False End Try Try oCompany.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit) Catch ex As Exception End Try
 
-    End Function
+    'End Function
 
 End Class
