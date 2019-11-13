@@ -6,6 +6,7 @@ Friend Class CatchingEvents
     Friend SBOCompany As SAPbobsCOM.Company '//OBJETO COMPAÑIA
     Friend csDirectory As String '//DIRECTORIO DONDE SE ENCUENTRAN LOS .SRF
 
+
     Public Sub New()
         MyBase.New()
         SetAplication()
@@ -17,6 +18,7 @@ Friend Class CatchingEvents
         setFilters()
 
     End Sub
+
 
     '//----- ESTABLECE LA COMUNICACION CON SBO
     Private Sub SetAplication()
@@ -34,6 +36,7 @@ Friend Class CatchingEvents
         End Try
     End Sub
 
+
     '//----- ESTABLECE EL CONTEXTO DE LA APLICACION
     Private Sub SetConnectionContext()
         Try
@@ -46,6 +49,7 @@ Friend Class CatchingEvents
             'Finally
         End Try
     End Sub
+
 
     '//----- CONEXION CON LA BASE DE DATOS
     Private Sub ConnectSBOCompany()
@@ -127,10 +131,7 @@ Friend Class CatchingEvents
             lofilters = New SAPbouiCOM.EventFilters
             lofilter = lofilters.Add(SAPbouiCOM.BoEventTypes.et_ITEM_PRESSED)
             lofilter.AddEx("tekReconciliation") '////// FORMA UDO DE ENTREGAS
-            lofilter = lofilters.Add(SAPbouiCOM.BoEventTypes.et_KEY_DOWN)
-            lofilter.AddEx("tekReconciliation") '////// FORMA UDO DE ENTREGAS
-            lofilter = lofilters.Add(SAPbouiCOM.BoEventTypes.et_COMBO_SELECT)
-            lofilter.AddEx("tekReconciliation") '////// FORMA UDO DE ENTREGAS
+
             lofilter = lofilters.Add(SAPbouiCOM.BoEventTypes.et_MENU_CLICK)
 
             SBOApplication.SetFilter(lofilters)
@@ -209,9 +210,11 @@ Friend Class CatchingEvents
         End Try
     End Sub
 
+
     Private Sub FrmLiquidarSBO(ByVal FormUID As String, ByVal pVal As SAPbouiCOM.ItemEvent)
 
         Dim otekLiq As FrmtekLIQ
+        Dim oLiquidar As Liquidar
         Dim oRecSetH As SAPbobsCOM.Recordset
 
         Try
@@ -229,6 +232,11 @@ Friend Class CatchingEvents
                             otekLiq = New FrmtekLIQ
                             otekLiq.AgregarLineas()
 
+                        Case "5"
+
+                            oLiquidar = New Liquidar
+                            oLiquidar.Liquidar()
+
                     End Select
 
             End Select
@@ -240,35 +248,5 @@ Friend Class CatchingEvents
         End Try
     End Sub
 
-    'Public Function addDelivery(ByVal FormUID As String, ByVal csDirectory As String)
-
-    '    Dim oReconService As SAPbobsCOM.InternalReconciliationsService = SBOCompany.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.InternalReconciliationsService)
-    '    Dim openTrans As SAPbobsCOM.InternalReconciliationOpenTrans = oReconService.GetDataInterface(SAPbobsCOM.InternalReconciliationsServiceDataInterfaces.irsInternalReconciliationOpenTrans)
-    '    Dim reconParams As SAPbobsCOM.InternalReconciliationParams = oReconService.GetDataInterface(SAPbobsCOM.InternalReconciliationsServiceDataInterfaces.irsInternalReconciliationParams)
-
-    '    For i = 0 To 10 'gridRecon.DataTable.Rows.Count - 1
-
-
-    '        If gridRecon.DataTable.GetValue("Select", gridRecon.GetDataTableRowIndex(i)) = "Y" Then
-
-    '            SBOApplication.SetStatusBarMessage("Reconcilling Please wait...", SAPbouiCOM.BoMessageTime.bmt_Short, False) With openTrans 'For Incoming Payment '1st Line 
-
-    '        If gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "RC" Then
-    '                .InternalReconciliationOpenTransRows.Add()
-    '                .InternalReconciliationOpenTransRows.Item(x).Selected = SAPbobsCOM.BoYesNoEnum.tYES
-    '                .InternalReconciliationOpenTransRows.Item(x).TransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) ' Journal Entry ID: TransId in OJDT 
-    '                .InternalReconciliationOpenTransRows.Item(x).TransRowId = 1 ' Journal Entry Line Number: Line_ID in JDT1 
-    '                oIncomPayment = Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i))) ' MsgBox(oIncomPayment) 'oTotal = oARPayment - oIncomPayment 
-    '                .InternalReconciliationOpenTransRows.Item(x).ReconcileAmount = oARPayment 'gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i)) 
-    '                ' This should always be positive value. But one line should be on Credit, one line is Debit. 
-    '                oTransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) ' 
-    '            ElseIf gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "JE" Then
-    '            Else openTrans.CardOrAccount = SAPbobsCOM.CardOrAccountEnum.coaCard .InternalReconciliationOpenTransRows.Add() .InternalReconciliationOpenTransRows.Item(x).Selected = SAPbobsCOM.BoYesNoEnum.tYES .InternalReconciliationOpenTransRows.Item(x).TransId = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) .InternalReconciliationOpenTransRows.Item(x).TransRowId = 0 ' Journal Entry Line Number: Line_ID in JDT1 .InternalReconciliationOpenTransRows.Item(x).ReconcileAmount = Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i))) ' This should always be positive value. But one line should be on Credit, one line is Debit. Console.WriteLine(Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", gridRecon.GetDataTableRowIndex(i)))) If gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "JE" Then oJeTranID = gridRecon.DataTable.GetValue("TransId", gridRecon.GetDataTableRowIndex(i)) olistPostedJE.Add(oJeTranID) End If End If If Not gridRecon.DataTable.GetValue("Type", gridRecon.GetDataTableRowIndex(i)) = "RC" Then oARPayment += Math.Abs(gridRecon.DataTable.GetValue("Actual Amount", i)) End If x = x + 1 End With End If 
-
-    '    Next
-
-    '    Try reconParams = oReconService.Add(openTrans) Catch ex As Exception SAP_APP.SetMessage(ex.ToString, SAPbouiCOM.BoStatusBarMessageType.smt_Error) oWriteText(Now & " - " & "[Err] - " & ex.ToString, True) oCompany.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_RollBack) Return False End Try Try oCompany.EndTransaction(SAPbobsCOM.BoWfTransOpt.wf_Commit) Catch ex As Exception End Try
-
-    'End Function
 
 End Class

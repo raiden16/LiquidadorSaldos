@@ -7,7 +7,7 @@ Public Class FrmtekLIQ
     Private coForm As SAPbouiCOM.Form           '//FORMA
     Private csFormUID As String
     Private stDocNum As String
-    Friend Monto As Double
+    'Friend Monto As Double
 
 
     '//----- METODO DE CREACION DE LA CLASE
@@ -116,7 +116,7 @@ Public Class FrmtekLIQ
             loText.DataBind.SetBound(True, "", "dsAmount")   ' uno mi userdatasources a mi caja de texto
 
             oGrid = coForm.Items.Item("3").Specific
-            oDataTable = coForm.DataSources.DataTables.Add("Invoices")
+            oDataTable = coForm.DataSources.DataTables.Add("Liquidar")
             oGrid.DataTable = oDataTable
 
         Catch ex As Exception
