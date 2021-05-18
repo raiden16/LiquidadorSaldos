@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AddOnRegData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SlientInstallation="No" SlientUpgrade="No" Partnernmsp="TS" SchemaVersion="3.0" Type="" MultipleVersion="false" OnDemand="" OnPremise="" ExtName="LiquidarSaldos" ExtVersion="1.0" Contdata="https://tekno-step.com/" Partner="Tekno-Step" DBType="HANA" ClientType="A">
+  <Validity>
+    <SBOCompatibility>
+      <Version From="" To="" />
+    </SBOCompatibility>
+  </Validity>
+  <Configuration>
+    <Repository>
+      <Properties />
+    </Repository>
+    <Deployment>
+      <Properties />
+    </Deployment>
+    <Assignment>
+      <Properties />
+    </Assignment>
+  </Configuration>
+  <Addons>
+    <Addon Name="" Group="" ForceFlag="" Visible="" AutoAssign="" SelfUpgrd="">
+      <x86 AddonExe="C:\Users\lvazquez\source\repos\LiquidarReconciliar\LiquidarReconciliar\bin\Debug\LiquidarReconciliar.exe" AddonSig="">
+        <Installation>
+          <Files>
+            <File FileName="LiquidarReconciliar.exe">
+              <Actions />
+            </File>
+            <File FileName="LiquidarReconciliar.exe.config">
+              <Actions />
+            </File>
+            <File FileName="LiquidarReconciliar.pdb">
+              <Actions />
+            </File>
+            <File FileName="LiquidarReconciliar.xml">
+              <Actions />
+            </File>
+            <File FileName="Sap.Data.Hana.v3.5.dll">
+              <Actions />
+            </File>
+            <File FileName="Sap.Data.Hana.v3.5.dll.config">
+              <Actions />
+            </File>
+            <File FileName="Sap.Data.Hana.v3.5.xml">
+              <Actions />
+            </File>
+            <File FileName="Forms\tekReconciliation.srf">
+              <Actions />
+            </File>
+          </Files>
+        </Installation>
+        <Uninstallation>
+          <Files>
+            <File FileName="LiquidarReconciliar.exe">
+              <Actions />
+            </File>
+            <File FileName="LiquidarReconciliar.exe.config">
+              <Actions />
+            </File>
+            <File FileName="LiquidarReconciliar.pdb">
+              <Actions />
+            </File>
+            <File FileName="LiquidarReconciliar.xml">
+              <Actions />
+            </File>
+            <File FileName="Sap.Data.Hana.v3.5.dll">
+              <Actions />
+            </File>
+            <File FileName="Sap.Data.Hana.v3.5.dll.config">
+              <Actions />
+            </File>
+            <File FileName="Sap.Data.Hana.v3.5.xml">
+              <Actions />
+            </File>
+            <File FileName="Forms\tekReconciliation.srf">
+              <Actions />
+            </File>
+          </Files>
+        </Uninstallation>
+      </x86>
+      <x64 AddonExe="" AddonSig="">
+        <Installation>
+          <Files />
+        </Installation>
+        <Uninstallation>
+          <Files />
+        </Uninstallation>
+      </x64>
+    </Addon>
+  </Addons>
+  <XApps>
+    <XApp Name="" Path="" FileName="" />
+  </XApps>
+  <UDQs>
+    <UDQ udqname="">
+      <Hana FileName="" />
+    </UDQ>
+  </UDQs>
+</AddOnRegData>

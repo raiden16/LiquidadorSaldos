@@ -36,7 +36,6 @@ Friend Class CatchingEvents
         End Try
     End Sub
 
-
     '//----- ESTABLECE EL CONTEXTO DE LA APLICACION
     Private Sub SetConnectionContext()
         Try
@@ -49,7 +48,6 @@ Friend Class CatchingEvents
             'Finally
         End Try
     End Sub
-
 
     '//----- CONEXION CON LA BASE DE DATOS
     Private Sub ConnectSBOCompany()
@@ -242,7 +240,7 @@ Friend Class CatchingEvents
             End Select
 
         Catch ex As Exception
-            SBOApplication.MessageBox("FrmEntregaSBOControllerAfter. Error en forma de Panel General. " & ex.Message)
+            SBOApplication.MessageBox("FrmLiquidarSBO. Error en forma de Panel General. " & ex.Message)
         Finally
 
         End Try

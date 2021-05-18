@@ -152,16 +152,14 @@ Public Class FrmtekLIQ
             oGrid.DataTable.Clear()
 
             oRecSet = cSBOCompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset)
-            stQuery = "SELECT T2.""LicTradNum"" as ""RFC"",T2.""CardName"" as ""Cliente"",(T1.""BalDueCred""-IFNULL(T4.""BalDueDeb"",0)) as ""Saldo_a_Favor"",T3.""PrjName"" as ""Sucursal"",T0.""Project"" as ""Cod_Sucursal"",T0.""TransId"" as ""Asiento"", '' as ""Liquidar""
-                       FROM OJDT T0
-                       INNER JOIN JDT1 T1 ON T0.""TransId"" = T1.""TransId""
-                       INNER JOIN OCRD T2 on T2.""CardCode"" = T1.""ShortName""
-                       INNER JOIN OPRJ T3 On T0.""Project"" = T3.""PrjCode""
-                       LEFT JOIN (Select A.""TransId"",B.""BalDueDeb"",B.""ShortName"",A.""Ref1""  from OJDT A
+            stQuery = "Select C.""LicTradNum"" as ""RFC"", C.""CardName"" as ""Cliente"",B.""BalDueCred"" as ""Saldo_a_Favor"", D.""PrjName"" as ""Sucursal"", A.""Project"" as ""Cod_Sucursal"", A.""TransId"" as ""Asiento"", '' as ""Liquidar""
+                       from OJDT A
                        Inner Join JDT1 B on A.""TransId"" = B.""TransId""
-                       where A.""Memo"" Like ('%Asiento de corrección saldo a favor del cliente%')
-                       and B.""BalDueDeb"" > 0) T4 On T1.""TransId"" = T4.""Ref1""
-                       Where (T1.""BalDueCred""-IFNULL(T4.""BalDueDeb"",0))>0 and (T1.""BalDueCred""-IFNULL(T4.""BalDueDeb"",0))<=" & Amount & " and T1.""BalDueCred"" > 0 and T0.""RefDate"" Between '" & Fecha1 & "' and '" & Fecha2 & "'"
+                       INNER JOIN OCRD C on C.""CardCode"" = B.""ShortName""
+                       INNER JOIN OPRJ D On A.""Project"" = D.""PrjCode""
+                       where B.""BalDueCred""<>0 and C.""validFor""='Y' and C.""CardType""='C' and A.""TransType""=24 and A.""RefDate"" Between '" & Fecha1 & "' and '" & Fecha2 & "' and B.""BalDueCred""<=" & Amount & "
+                       Order by C.""LicTradNum"",A.""TransId"""
+
             oGrid.DataTable.ExecuteQuery(stQuery)
 
             oGrid.Columns.Item(6).Type = SAPbouiCOM.BoGridColumnType.gct_CheckBox
